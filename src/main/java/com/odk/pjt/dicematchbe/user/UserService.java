@@ -1,11 +1,10 @@
 package com.odk.pjt.dicematchbe.user;
 
+import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -18,20 +17,27 @@ public class UserService {
     }
 
     public User getUser(String userId) {
-        Optional<UserEntity> entity = userRepository.findById(userId);
-        return entity.map(UserEntity::toModel).orElse(null);
+        return userRepository.findById(userId).orElse(null);
     }
 
     public List<User> getUsers() {
-        return userRepository.findAll().stream().map(UserEntity::toModel).collect(Collectors.toList());
+        return userRepository.findAll();
     }
 
-    public User addUser(User user) {
-        return userRepository.save(new UserEntity(user)).toModel();
+    public User addUser(User user) throws BadEntityInputException {
+        if (user.id == null) {
+            return userRepository.save(user);
+        }
+
+        throw new BadEntityInputException("addUser fail: "+user.id);
     }
 
-    public User editUser(User user) {
-        return userRepository.save(new UserEntity(user)).toModel();
+    public User editUser(User user) throws BadEntityInputException {
+        if (user.id != null) {
+            return userRepository.save(user);
+        }
+
+        throw new BadEntityInputException("editUser fail: "+user.id);
     }
 
     public String deleteUser(String userId) {

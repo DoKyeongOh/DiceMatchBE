@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, String> {
+public interface UserRepository extends JpaRepository<User, String> {
     @Override
-    Optional<UserEntity> findById(String userId);
+    Optional<User> findById(String userId);
 
     @Override
-    @NonNull
-    List<UserEntity> findAll();
+    List<User> findAll();
+
+
 
 }
