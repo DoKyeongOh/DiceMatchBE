@@ -1,0 +1,12 @@
+2025-03-29
+
+1. AccountService 를 Basic, Google로 나누어 관리하려고 했던게 바람직할까?
+    - 원래 생각: 입력으로 들어온 데이터의 형태나 정의 클래스만 보고 알아서 서비스 로직을 찾게끔 하고싶음
+    - Account를 상속받고, Account에는 Id, Type, data가 있는게 맞을 듯.
+    - data는 따로 테이블로 관리할 수 있긴하지만, 문자열로 관리하자. 테이블 관리 용이를 위함이기도함
+
+2. AccountData 를 없애고, BasicAccount, GoogleAccount 형태로 사용하려고 했음
+    - Account 부터 테이블이 나뉘어질 수 밖에 없음 (테이블을 한개로 관리한다면, Data를 쓰는 것과 동일함)
+    - AccountData는 써야할 듯.
+    - AccountData를 DB에 따로 저장하고, accountId를 필드로 가지도록 수정 필요함.
+    - 그럼, controller -> executionService -> service -> repository 이렇게 가야할 듯
