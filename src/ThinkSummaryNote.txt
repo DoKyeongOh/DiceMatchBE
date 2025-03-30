@@ -10,3 +10,17 @@
     - AccountData는 써야할 듯.
     - AccountData를 DB에 따로 저장하고, accountId를 필드로 가지도록 수정 필요함.
     - 그럼, controller -> executionService -> service -> repository 이렇게 가야할 듯
+
+--------------------------------------
+
+2025-03-31
+
+1. register 시엔 account, accountData 를 생성해야함 == id가 없는채로 요청됨
+
+2. register 시 데이터 유효성 검사를 해야함
+    - ValidationService 같은게 종류별로 필요?
+    - Controller -> AccountService -> (by type) AccountDataService -> (by type) AccountDataRepository
+
+3. Basic 방식인 경우, pwHash가 처음엔 평문으로 들어오도록 만들어야할듯
+    - 저장될 때 hash처리해서 저장하자.
+    - pwHash -> password로 바꾸는게 맞을지도.

@@ -1,10 +1,10 @@
 package com.odk.pjt.dicematchbe.account.data;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
-@Entity(name = "account_data")
+@MappedSuperclass
 public class AccountData {
     @Id
     @Column(name = "acconut_id", nullable = false, unique = true)
