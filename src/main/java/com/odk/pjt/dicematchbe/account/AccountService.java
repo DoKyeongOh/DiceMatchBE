@@ -1,13 +1,14 @@
 package com.odk.pjt.dicematchbe.account;
 
 import com.odk.pjt.dicematchbe.account.data.AccountData;
-import com.odk.pjt.dicematchbe.account.data.AccountDataService;
+import com.odk.pjt.dicematchbe.account.data.basic.BasicAccountData;
+import com.odk.pjt.dicematchbe.account.data.google.GoogleAccountData;
+import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
 import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 
 @Service
 public class AccountService {
@@ -15,23 +16,46 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private Map<String, AccountDataService> dataServiceMap;
+    public Account add(AccountType type) throws BadEntityInputException {
+        if (type == null) {
+            throw new BadEntityInputException("account add fail: type is null");
+        }
 
-    public Account register(AccountData accountData) throws DiceMatchException {
         Account account = new Account();
-        account.type = AccountType.fromData(accountData);
-        account.active = true;
+        account.type = type;
         account.createdDate = new Date();
-        Account newAccount = accountRepository.save(account);
+        account.active = true;
 
-        AccountData register = dataServiceMap.get(account.type.getServiceName()).register(accountData);
-
-        return newAccount;
+        return accountRepository.save(account);
     }
 
-    public Account setActive(String accountId) {
-        return null;
+    public Account setActive(String accountId, boolean value) throws DiceMatchException {
+        Account account = accountRepository.findById(accountId).orElseThrow(() ->
+                new DiceMatchException(String.format("setActive %b fail: %s", value, accountId)));
+
+        account.active = value;
+        return accountRepository.save(account);
+    }
+
+
+    private static AccountType getAccountType(AccountData data) {
+        if (data instanceof BasicAccountData) {
+            return AccountType.BASIC;
+        }
+
+        if (data instanceof GoogleAccountData) {
+            return AccountType.GOOGLE;
+        }
+
+        return AccountType.NONE;
+    }
+
+    private static String getServiceName(AccountType accountType) {
+        switch (accountType) {
+            case BASIC: return "BasicAccountDataService";
+            case GOOGLE: return "GoogleAccountDataService";
+            default: return "none";
+        }
     }
 
 }

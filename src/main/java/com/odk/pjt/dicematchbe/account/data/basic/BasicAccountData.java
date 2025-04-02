@@ -9,6 +9,15 @@ public class BasicAccountData extends AccountData {
     @Column(name = "identity")
     public String identity;
 
-    @Column(name = "pwHash")
-    public String pwHash;
+    @Column(name = "password")
+    public String password;
+
+    @Override
+    public String toString() {
+        return "BasicAccountData{" +
+                "identity='" + identity + '\'' +
+                ", password='" + password + '\'' +
+                ", accountId='" + accountId + '\'' +
+                '}';
+    }
 }

@@ -15,14 +15,14 @@ public class JWTUtil {
         return createJWT(username, secretKey, 60 * 60);
     }
 
-    public static String createJWT(String username, String secretKey, long tokenDuration) {
+    public static String createJWT(String subject, String secretKey, long tokenDuration) {
         return Jwts.builder()
                 .header()
                 .keyId("login")
                 .and()
                 .issuer("system")
                 .subject("login")
-                .audience().add(username).and()
+                .audience().add(subject).and()
                 .issuedAt(new Date())
                 .notBefore(new Date())
                 .expiration(new Date(new Date().getTime() + 1000 * tokenDuration))

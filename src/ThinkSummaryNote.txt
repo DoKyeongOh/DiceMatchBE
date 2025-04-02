@@ -24,3 +24,6 @@
 3. Basic 방식인 경우, pwHash가 처음엔 평문으로 들어오도록 만들어야할듯
     - 저장될 때 hash처리해서 저장하자.
     - pwHash -> password로 바꾸는게 맞을지도.
+
+4. Controller 에서부터 별도로 받아야 할듯.
+    - service는 공유할지라도 controller에서 나누어 받는게 나을듯.
