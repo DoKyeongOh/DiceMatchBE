@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
         basePackages = "com.odk.pjt.dicematchbe",
         includeFilters = { @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { Repository.class }) }
 )
+@EnableJpaAuditing
 @SpringBootApplication
 public class DiceMatchBeApplication {
 
