@@ -7,7 +7,7 @@ public class HashEncryptionUtil {
 
     public static String encrypt(String algorithm, String message) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance(algorithm);
-        byte[] digested = digest.digest("password".getBytes());
+        byte[] digested = digest.digest(message.getBytes());
         StringBuilder builder = new StringBuilder();
         for (byte b : digested) {
             builder.append(String.format("%02x", b));
