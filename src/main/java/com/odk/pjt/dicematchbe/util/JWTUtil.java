@@ -1,33 +1,32 @@
 package com.odk.pjt.dicematchbe.util;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
+import javax.crypto.SecretKey;
+import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
-public class JWTUtil {
+public class JwtUtil {
 
-    public static String createJWT(String username) {
-        return createJWT(username, "secretKey", 60 * 60);
-    }
-
-    public static String createJWT(String username, String secretKey) {
-        return createJWT(username, secretKey, 60 * 60);
-    }
-
-    public static String createJWT(String subject, String secretKey, long tokenDuration) {
+    public static String createJws(String subject, String audience, int expireSeconds, Key key) {
+        long now = Instant.now().toEpochMilli();
         return Jwts.builder()
-                .header()
-                .keyId("login")
-                .and()
+                .header().keyId("diceMatch").and()
                 .issuer("system")
-                .subject("login")
-                .audience().add(subject).and()
-                .issuedAt(new Date())
-                .notBefore(new Date())
-                .expiration(new Date(new Date().getTime() + 1000 * tokenDuration))
-                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
+                .subject(subject)
+                .audience().add(audience).and()
+                .issuedAt(new Date(now))
+                .notBefore(new Date(now))
+                .expiration(new Date(now + 1000L * expireSeconds))
+                .signWith(key)
                 .compact();
+    }
+
+    public static Jws<Claims> parseJws(String jwt, SecretKey key) {
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt);
     }
 
 }
