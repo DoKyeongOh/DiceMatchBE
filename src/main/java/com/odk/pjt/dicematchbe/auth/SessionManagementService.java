@@ -1,5 +1,6 @@
 package com.odk.pjt.dicematchbe.auth;
 
+import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import com.odk.pjt.dicematchbe.exception.DuplicatedLoginSessionException;
 import com.odk.pjt.dicematchbe.util.HashEncryptionUtil;
 import com.odk.pjt.dicematchbe.util.JwtUtil;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SessionManagementService {
 
+    private final static String JWT_LOGIN_SUBJECT = "login";
     private final Map<String, String> userIdTokenMap = new ConcurrentHashMap<>();
 
     @Value("${app.token.expire-seconds}")
@@ -35,28 +37,28 @@ public class SessionManagementService {
         secretKey = Keys.hmacShaKeyFor(key.getBytes());
     }
 
-    public void loginUser(String userId) throws DuplicatedLoginSessionException {
+    public String login(String userId) throws DuplicatedLoginSessionException {
         String jwsToken = userIdTokenMap.get(userId);
 
         if (jwsToken == null) {
-            String jws = JwtUtil.createJws("login", userId, expireSeconds, secretKey);
+            String jws = JwtUtil.createJws(JWT_LOGIN_SUBJECT, userId, expireSeconds, secretKey);
             userIdTokenMap.put(userId, jws);
-            return;
+            return jws;
         }
 
         Jws<Claims> claimsJws = JwtUtil.parseJws(jwsToken, secretKey);
         Date expiration = claimsJws.getPayload().getExpiration();
 
         if (expiration.before(new Date())) {
-            String jws = JwtUtil.createJws("login", userId, expireSeconds, secretKey);
+            String jws = JwtUtil.createJws(JWT_LOGIN_SUBJECT, userId, expireSeconds, secretKey);
             userIdTokenMap.put(userId, jws);
-            return;
+            return jws;
         }
 
         throw new DuplicatedLoginSessionException(userId);
     }
 
-    public synchronized void logoutUser(String userId) {
+    public void logout(String userId) {
         userIdTokenMap.remove(userId);
     }
 

@@ -1,6 +1,7 @@
 package com.odk.pjt.dicematchbe.account.basic;
 
-import com.odk.pjt.dicematchbe.account.BasicAccountDTO;
+import com.odk.pjt.dicematchbe.account.dto.AccountUserIdUpdateRequest;
+import com.odk.pjt.dicematchbe.account.dto.BasicAccountDTO;
 import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
 import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import com.odk.pjt.dicematchbe.exception.EntityAlreadyExistException;
@@ -59,24 +60,22 @@ public class BasicAccountService {
         BasicAccount basicAccount = new BasicAccount();
         basicAccount.setIdentity(dto.getIdentity());
         basicAccount.setPassword(dto.getPassword());
-        // TODO: 시간도 시스템에서 발급하는걸로 가는게 의미상 더 맞을듯. 크게 의미는 없지만, 발급은 시스템에서 하니까.
-        // 통신시간딜레이
         return repository.save(basicAccount);
     }
 
-    public BasicAccount updateUserIdMapping(String accountId, String userId) throws DiceMatchException {
-        if (accountId == null || accountId.isEmpty()) {
+    public BasicAccount updateUserIdMapping(AccountUserIdUpdateRequest request) throws DiceMatchException {
+        if (request.getAccountId() == null || request.getAccountId().isEmpty()) {
             throw new BadEntityInputException("accountId");
         }
 
-        if (userId == null || userId.isEmpty()) {
+        if (request.getUserId() == null || request.getUserId().isEmpty()) {
             throw new BadEntityInputException("userId");
         }
 
-        BasicAccount basicAccount = repository.findById(accountId).orElseThrow(() ->
+        BasicAccount basicAccount = repository.findById(request.getAccountId()).orElseThrow(() ->
                 new EntityNotFoundException(""));
 
-        basicAccount.setUserId(userId);
+        basicAccount.setUserId(request.getUserId());
 
         return repository.save(basicAccount);
     }

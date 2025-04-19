@@ -1,4 +1,4 @@
-package com.odk.pjt.dicematchbe.account;
+package com.odk.pjt.dicematchbe.account.dto;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;
