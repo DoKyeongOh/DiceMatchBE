@@ -1,6 +1,8 @@
-package com.odk.pjt.dicematchbe.user;
+package com.odk.pjt.dicematchbe.controller;
 
 import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
+import com.odk.pjt.dicematchbe.user.User;
+import com.odk.pjt.dicematchbe.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +28,7 @@ public class UserController {
 
     @GetMapping("{userId}")
     public User getUser(@PathVariable("userId") String userId) {
-        return userService.getUser(userId);
+        return userService.getUser(userId).orElse(null);
     }
 
     @GetMapping

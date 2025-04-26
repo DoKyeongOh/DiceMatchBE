@@ -1,7 +1,7 @@
 package com.odk.pjt.dicematchbe.account.basic;
 
-import com.odk.pjt.dicematchbe.account.dto.AccountUserIdUpdateRequest;
-import com.odk.pjt.dicematchbe.account.dto.BasicAccountDTO;
+import com.odk.pjt.dicematchbe.account.dto.UpdateAccountRequest;
+import com.odk.pjt.dicematchbe.account.dto.BasicAccountDto;
 import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
 import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import com.odk.pjt.dicematchbe.exception.EntityAlreadyExistException;
@@ -22,7 +22,7 @@ public class BasicAccountService {
         this.repository = repository;
     }
 
-    public Optional<BasicAccount> getBasicAccount(BasicAccountDTO dto) throws DiceMatchException {
+    public Optional<BasicAccount> getBasicAccount(BasicAccountDto dto) throws DiceMatchException {
         if (dto == null) {
             throw new BadEntityInputException("null");
         }
@@ -45,16 +45,9 @@ public class BasicAccountService {
         return repository.findByIdentityAndPassword(dto.getIdentity(), dto.getPassword());
     }
 
-    public BasicAccount register(BasicAccountDTO dto) throws DiceMatchException {
+    public BasicAccount register(BasicAccountDto dto) throws DiceMatchException {
         if (getBasicAccount(dto).isPresent()) {
             throw new EntityAlreadyExistException("basic account");
-        }
-
-        try {
-            String passwordHash = HashEncryptionUtil.encrypt("SHA-256", dto.getPassword());
-            dto.setPassword(passwordHash);
-        } catch (Exception e) {
-            throw new DiceMatchException("password hashing fail");
         }
 
         BasicAccount basicAccount = new BasicAccount();
@@ -63,7 +56,7 @@ public class BasicAccountService {
         return repository.save(basicAccount);
     }
 
-    public BasicAccount updateUserIdMapping(AccountUserIdUpdateRequest request) throws DiceMatchException {
+    public BasicAccount updateUserIdMapping(UpdateAccountRequest request) throws DiceMatchException {
         if (request.getAccountId() == null || request.getAccountId().isEmpty()) {
             throw new BadEntityInputException("accountId");
         }

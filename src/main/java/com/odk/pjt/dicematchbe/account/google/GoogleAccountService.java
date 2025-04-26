@@ -1,6 +1,6 @@
 package com.odk.pjt.dicematchbe.account.google;
 
-import com.odk.pjt.dicematchbe.account.dto.AccountUserIdUpdateRequest;
+import com.odk.pjt.dicematchbe.account.dto.UpdateAccountRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,7 +9,7 @@ public class GoogleAccountService {
         return null;
     }
 
-    public GoogleAccount updateUserIdMapping(AccountUserIdUpdateRequest request) {
+    public GoogleAccount updateUserIdMapping(UpdateAccountRequest request) {
         return null;
     }
 

@@ -1,4 +1,6 @@
-package com.odk.pjt.dicematchbe.exception;
+package com.odk.pjt.dicematchbe.exception.session;
+
+import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 
 public class DuplicatedLoginSessionException extends DiceMatchException {
     public DuplicatedLoginSessionException() {

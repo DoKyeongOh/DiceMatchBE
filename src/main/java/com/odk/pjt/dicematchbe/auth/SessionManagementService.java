@@ -1,32 +1,36 @@
 package com.odk.pjt.dicematchbe.auth;
 
-import com.odk.pjt.dicematchbe.exception.DiceMatchException;
-import com.odk.pjt.dicematchbe.exception.DuplicatedLoginSessionException;
+import com.odk.pjt.dicematchbe.exception.session.DuplicatedLoginSessionException;
+import com.odk.pjt.dicematchbe.exception.session.LoginSessionNotExistException;
 import com.odk.pjt.dicematchbe.util.HashEncryptionUtil;
 import com.odk.pjt.dicematchbe.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SessionManagementService {
 
+    private final static String LOGIN_COOKIE_NAME = "jwtToken";
     private final static String JWT_LOGIN_SUBJECT = "login";
     private final Map<String, String> userIdTokenMap = new ConcurrentHashMap<>();
 
-    @Value("${app.token.expire-seconds}")
+    @Value("${app.login.session-expire-seconds}")
     private int expireSeconds;
 
-    @Value("${app.token.hash-key}")
+    @Value("${app.login.session-hash-key}")
     private String keyString;
 
     private SecretKey secretKey;
@@ -37,29 +41,48 @@ public class SessionManagementService {
         secretKey = Keys.hmacShaKeyFor(key.getBytes());
     }
 
-    public String login(String userId) throws DuplicatedLoginSessionException {
+    public Cookie login(String userId) throws Exception {
         String jwsToken = userIdTokenMap.get(userId);
 
-        if (jwsToken == null) {
-            String jws = JwtUtil.createJws(JWT_LOGIN_SUBJECT, userId, expireSeconds, secretKey);
-            userIdTokenMap.put(userId, jws);
-            return jws;
+        if (jwsToken != null) {
+            Jws<Claims> claimsJws = JwtUtil.parseJws(jwsToken, secretKey);
+            Date expiration = claimsJws.getPayload().getExpiration();
+
+            if (expiration.getTime() > new Date().getTime()) {
+                throw new DuplicatedLoginSessionException(userId);
+            }
         }
 
-        Jws<Claims> claimsJws = JwtUtil.parseJws(jwsToken, secretKey);
-        Date expiration = claimsJws.getPayload().getExpiration();
+        String jws = JwtUtil.createJws(JWT_LOGIN_SUBJECT, userId, expireSeconds, secretKey);
+        userIdTokenMap.put(userId, jws);
 
-        if (expiration.before(new Date())) {
-            String jws = JwtUtil.createJws(JWT_LOGIN_SUBJECT, userId, expireSeconds, secretKey);
-            userIdTokenMap.put(userId, jws);
-            return jws;
-        }
+        Cookie loginCookie = new Cookie(LOGIN_COOKIE_NAME, jws);
+        loginCookie.setHttpOnly(true);
+        loginCookie.setSecure(false);
+        loginCookie.setPath("/");
+        loginCookie.setMaxAge(expireSeconds);
 
-        throw new DuplicatedLoginSessionException(userId);
+        return loginCookie;
     }
 
-    public void logout(String userId) {
+    public Cookie logout(String jwtToken) throws Exception {
+        Jws<Claims> claimsJws = JwtUtil.parseJws(jwtToken, secretKey);
+        Set<String> audience = claimsJws.getPayload().getAudience();
+
+        if (audience == null || audience.isEmpty()) {
+            throw new LoginSessionNotExistException();
+        }
+
+        String userId = new ArrayList<>(audience).get(0);
         userIdTokenMap.remove(userId);
+
+        Cookie loginCookie = new Cookie("jwtToken", jwtToken);
+        loginCookie.setHttpOnly(true);
+        loginCookie.setSecure(false);
+        loginCookie.setPath("/");
+        loginCookie.setMaxAge(0);
+
+        return loginCookie;
     }
 
 }

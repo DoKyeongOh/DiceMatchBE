@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountUserIdUpdateRequest {
+public class UpdateAccountRequest {
     private String accountId;
     private String userId;
 }

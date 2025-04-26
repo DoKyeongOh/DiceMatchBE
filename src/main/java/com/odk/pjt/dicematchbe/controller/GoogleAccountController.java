@@ -1,6 +1,6 @@
-package com.odk.pjt.dicematchbe.controller.account;
+package com.odk.pjt.dicematchbe.controller;
 
-import com.odk.pjt.dicematchbe.account.dto.AccountUserIdUpdateRequest;
+import com.odk.pjt.dicematchbe.account.dto.UpdateAccountRequest;
 import com.odk.pjt.dicematchbe.account.google.GoogleAccountService;
 import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,13 @@ public class GoogleAccountController {
 
     @PostMapping
     @Transactional
-    public String registerGoogleAccount(Map<String, Object> body) {
+    public String registerOrLogin(Map<String, Object> body) {
         googleAccountService.register("email");
         return "success";
     }
 
     @PutMapping
-    public String updateGoogleAccountUserId(AccountUserIdUpdateRequest request) throws DiceMatchException {
+    public String updateGoogleAccountUserId(UpdateAccountRequest request) throws DiceMatchException {
         googleAccountService.updateUserIdMapping(request);
         return "success";
     }

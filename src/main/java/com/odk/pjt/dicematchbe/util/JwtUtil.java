@@ -1,5 +1,6 @@
 package com.odk.pjt.dicematchbe.util;
 
+import com.odk.pjt.dicematchbe.exception.DiceMatchException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -25,8 +26,12 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static Jws<Claims> parseJws(String jwt, SecretKey key) {
-        return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt);
+    public static Jws<Claims> parseJws(String jwt, SecretKey key) throws Exception {
+        try {
+            return Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt);
+        } catch (Exception e) {
+            throw new Exception("잘못된 토큰 값입니다. 관리자에게 문의하세요.");
+        }
     }
 
 }

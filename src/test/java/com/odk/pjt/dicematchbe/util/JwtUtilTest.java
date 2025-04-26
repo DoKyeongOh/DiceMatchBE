@@ -20,7 +20,7 @@ class JwtUtilTest {
     }
 
     @Test
-    public void test() throws NoSuchAlgorithmException {
+    public void test() throws Exception {
         String key = HashEncryptionUtil.encrypt("SHA-256", "mypassword");
         SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes());
 
