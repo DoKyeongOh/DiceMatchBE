@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SessionManagementService {
 
-    private final static String LOGIN_COOKIE_NAME = "jwtToken";
+    private final String LOGIN_COOKIE_NAME = "jwtToken";
     private final static String JWT_LOGIN_SUBJECT = "login";
     private final Map<String, String> userIdTokenMap = new ConcurrentHashMap<>();
 
@@ -76,7 +76,7 @@ public class SessionManagementService {
         String userId = new ArrayList<>(audience).get(0);
         userIdTokenMap.remove(userId);
 
-        Cookie loginCookie = new Cookie("jwtToken", jwtToken);
+        Cookie loginCookie = new Cookie(LOGIN_COOKIE_NAME, jwtToken);
         loginCookie.setHttpOnly(true);
         loginCookie.setSecure(false);
         loginCookie.setPath("/");

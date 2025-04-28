@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -25,20 +26,26 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User addNewUser() {
+        User user = new User();
+        user.userId = UUID.randomUUID().toString();
+        return userRepository.save(user);
+    }
+
     public User addUser(User user) throws BadEntityInputException {
-        if (user.id == null) {
+        if (user.userId == null) {
             return userRepository.save(user);
         }
 
-        throw new BadEntityInputException("addUser fail: "+user.id);
+        throw new BadEntityInputException("addUser fail: "+user.userId);
     }
 
     public User editUser(User user) throws BadEntityInputException {
-        if (user.id != null) {
+        if (user.userId != null) {
             return userRepository.save(user);
         }
 
-        throw new BadEntityInputException("editUser fail: "+user.id);
+        throw new BadEntityInputException("editUser fail: "+user.userId);
     }
 
     public String deleteUser(String userId) {

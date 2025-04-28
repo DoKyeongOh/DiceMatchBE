@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BasicAccountDto {
-    private String identity;
-    private String password;
+    public String identity;
+    public String password;
 }

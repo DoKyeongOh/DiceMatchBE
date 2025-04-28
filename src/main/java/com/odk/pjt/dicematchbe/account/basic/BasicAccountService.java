@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BasicAccountService {
@@ -51,24 +52,25 @@ public class BasicAccountService {
         }
 
         BasicAccount basicAccount = new BasicAccount();
-        basicAccount.setIdentity(dto.getIdentity());
-        basicAccount.setPassword(dto.getPassword());
+        basicAccount.accountId = UUID.randomUUID().toString();
+        basicAccount.identity = dto.getIdentity();
+        basicAccount.password = dto.getPassword();
         return repository.save(basicAccount);
     }
 
-    public BasicAccount updateUserIdMapping(UpdateAccountRequest request) throws DiceMatchException {
-        if (request.getAccountId() == null || request.getAccountId().isEmpty()) {
+    public BasicAccount updateUserIdMapping(String accountId, String userId) throws DiceMatchException {
+        if (accountId == null || accountId.isEmpty()) {
             throw new BadEntityInputException("accountId");
         }
 
-        if (request.getUserId() == null || request.getUserId().isEmpty()) {
+        if (userId == null || userId.isEmpty()) {
             throw new BadEntityInputException("userId");
         }
 
-        BasicAccount basicAccount = repository.findById(request.getAccountId()).orElseThrow(() ->
+        BasicAccount basicAccount = repository.findById(accountId).orElseThrow(() ->
                 new EntityNotFoundException(""));
 
-        basicAccount.setUserId(request.getUserId());
+        basicAccount.userId = userId;
 
         return repository.save(basicAccount);
     }

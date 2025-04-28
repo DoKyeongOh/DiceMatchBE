@@ -15,7 +15,7 @@ public class UserDto {
         }
 
         UserDto dto = new UserDto();
-        dto.userId = user.id;
+        dto.userId = user.userId;
         dto.nickName = user.nickName;
         return dto;
     }
