@@ -3,29 +3,26 @@ package com.odk.pjt.dicematchbe.account;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
-
-@MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@Getter @Setter
 public class Account {
     @Id
     @Column(name = "account_id")
-    public String accountId;
+    private String accountId;
 
     @Column(name = "user_id")
-    public String userId;
+    private String userId;
 
     @Column(name = "account_type")
-    public AccountType type;
+    private AccountType type;
 
-    @CreatedDate
-    @Column(name = "createdDate")
-    public Date createdDate;
+    @Column(name = "created_time")
+    private long createdTime;
 
     @Column(name = "account_active")
-    public boolean active = true;
+    private boolean active = true;
 }

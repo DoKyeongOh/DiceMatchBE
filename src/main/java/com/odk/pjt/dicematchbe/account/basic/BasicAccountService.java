@@ -1,78 +1,72 @@
 package com.odk.pjt.dicematchbe.account.basic;
 
-import com.odk.pjt.dicematchbe.account.dto.UpdateAccountRequest;
-import com.odk.pjt.dicematchbe.account.dto.BasicAccountDto;
-import com.odk.pjt.dicematchbe.exception.BadEntityInputException;
-import com.odk.pjt.dicematchbe.exception.DiceMatchException;
-import com.odk.pjt.dicematchbe.exception.EntityAlreadyExistException;
-import com.odk.pjt.dicematchbe.exception.EntityNotFoundException;
+import com.odk.pjt.dicematchbe.account.Account;
+import com.odk.pjt.dicematchbe.account.AccountRepository;
+import com.odk.pjt.dicematchbe.account.AccountType;
+import com.odk.pjt.dicematchbe.account.dto.BasicAccountDTO;
+import com.odk.pjt.dicematchbe.user.User;
+import com.odk.pjt.dicematchbe.user.UserRepository;
 import com.odk.pjt.dicematchbe.util.HashEncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BasicAccountService {
 
-    private final BasicAccountRepository repository;
+    private final AccountRepository accountRepository;
+    private final BasicAccountInfoRepository infoRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public BasicAccountService(BasicAccountRepository repository) {
-        this.repository = repository;
+    public BasicAccountService(AccountRepository accountRepository, BasicAccountInfoRepository infoRepository,
+                               UserRepository userRepository) {
+        this.accountRepository = accountRepository;
+        this.infoRepository = infoRepository;
+        this.userRepository = userRepository;
     }
 
-    public Optional<BasicAccount> getBasicAccount(BasicAccountDto dto) throws DiceMatchException {
-        if (dto == null) {
-            throw new BadEntityInputException("null");
-        }
+    public Optional<Account> getAccount(BasicAccountDTO dto) throws NoSuchAlgorithmException {
+        Optional<BasicAccountInfo> optionalInfo = infoRepository.findByIdentityAndPasswordHash(dto.getIdentity(),
+                HashEncryptionUtil.encrypt("SHA-256", dto.getPassword()));
 
-        if (dto.getIdentity() == null || dto.getIdentity().isEmpty()) {
-            throw new BadEntityInputException("identity");
-        }
-
-        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
-            throw new BadEntityInputException("password");
-        }
-
-        try {
-            String passwordHash = HashEncryptionUtil.encrypt("SHA-256", dto.getPassword());
-            dto.setPassword(passwordHash);
-        } catch (Exception e) {
-            throw new DiceMatchException("password hashing fail");
-        }
-
-        return repository.findByIdentityAndPassword(dto.getIdentity(), dto.getPassword());
+        return optionalInfo.flatMap(basicAccountInfo -> accountRepository.findById(basicAccountInfo.getAccountId()));
     }
 
-    public BasicAccount register(BasicAccountDto dto) throws DiceMatchException {
-        if (getBasicAccount(dto).isPresent()) {
-            throw new EntityAlreadyExistException("basic account");
+    @Transactional
+    public Account register(BasicAccountDTO dto) throws NoSuchAlgorithmException {
+        if (infoRepository.findByIdentity(dto.getIdentity()).isPresent()) {
+            throw new RuntimeException("Account already exists");
         }
 
-        BasicAccount basicAccount = new BasicAccount();
-        basicAccount.accountId = UUID.randomUUID().toString();
-        basicAccount.identity = dto.getIdentity();
-        basicAccount.password = dto.getPassword();
-        return repository.save(basicAccount);
-    }
+        String accountId = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        long now = System.currentTimeMillis();
 
-    public BasicAccount updateUserIdMapping(String accountId, String userId) throws DiceMatchException {
-        if (accountId == null || accountId.isEmpty()) {
-            throw new BadEntityInputException("accountId");
-        }
+        BasicAccountInfo info = new BasicAccountInfo();
+        info.setAccountId(accountId);
+        info.setIdentity(dto.getIdentity());
+        info.setPasswordHash(HashEncryptionUtil.encrypt("SHA-256", dto.getPassword()));
+        infoRepository.save(info);
 
-        if (userId == null || userId.isEmpty()) {
-            throw new BadEntityInputException("userId");
-        }
+        User user = new User();
+        user.setUserId(userId);
+        user.setNickName("새로운 유저");
+        user.setCreatedTime(now);
+        user.setUpdatedTime(now);
+        userRepository.save(user);
 
-        BasicAccount basicAccount = repository.findById(accountId).orElseThrow(() ->
-                new EntityNotFoundException(""));
-
-        basicAccount.userId = userId;
-
-        return repository.save(basicAccount);
+        Account account = new Account();
+        account.setAccountId(accountId);
+        account.setType(AccountType.BASIC);
+        account.setUserId(userId);
+        account.setCreatedTime(now);
+        account.setActive(true);
+        return accountRepository.save(account);
     }
 
 }

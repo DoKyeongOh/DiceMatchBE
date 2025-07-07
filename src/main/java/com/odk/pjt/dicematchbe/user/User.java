@@ -3,19 +3,22 @@ package com.odk.pjt.dicematchbe.user;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity(name = "user")
+@Getter @Setter
 public class User {
     @Id
     @Column(name = "user_id", nullable = false, unique = true)
-    public String userId;
+    private String userId;
 
     @Column(name = "nickname")
-    public String nickName;
+    private String nickName;
 
     @Column(name = "created_time")
-    public long createdTime;
+    private long createdTime;
 
     @Column(name = "updated_time")
-    public long updatedTime;
+    private long updatedTime;
 }

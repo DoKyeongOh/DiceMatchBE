@@ -1,5 +1,6 @@
 package com.odk.pjt.dicematchbe.account.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BasicAccountDto {
-    public String identity;
-    public String password;
+public class BasicAccountDTO {
+    @NotBlank
+    private String identity;
+    @NotBlank
+    private String password;
 }
